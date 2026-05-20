@@ -1,5 +1,5 @@
 export const TRACK_CONFIG = {
-  width: 12,
+  width: 18,
   barrierHeight: 1.5,
   segments: 200,
   totalLaps: 3,
@@ -8,11 +8,11 @@ export const TRACK_CONFIG = {
 
 export const CAR_CONFIG = {
   maxSpeed: 320,
-  acceleration: 80,
+  acceleration: 150,
   braking: 120,
   turnSpeed: 2.2,
-  friction: 0.98,
-  offroadFriction: 0.92,
+  friction: 0.995,
+  offroadFriction: 0.85,
   downforce: 0.3,
 };
 
