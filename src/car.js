@@ -172,7 +172,7 @@ export function createAICar(color, trackPoints, startOffset) {
     mesh: car,
     trackIndex: startOffset,
     speed: 0,
-    targetSpeed: 180 + Math.random() * 80,
+    targetSpeed: 200 + Math.random() * 100,
     wobble: Math.random() * Math.PI * 2,
     lap: 1,
     position: { x: 0, y: 0, z: 0 }
@@ -186,7 +186,7 @@ export function updateAICar(ai, delta, trackPoints) {
   const speedVariation = 1 + (Math.sin(ai.wobble + performance.now() * 0.001) * 0.05);
   ai.speed = lerp(ai.speed, ai.targetSpeed * speedVariation, delta * 2);
 
-  const advance = ai.speed * delta * 0.05;
+  const advance = ai.speed * delta * 0.15;
   const prevIndex = ai.trackIndex;
   ai.trackIndex = (ai.trackIndex + advance) % numPoints;
   if (ai.trackIndex < 0) ai.trackIndex += numPoints;
