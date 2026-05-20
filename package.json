@@ -1,0 +1,15 @@
+{
+  "name": "f1-racing-3d",
+  "version": "1.0.0",
+  "description": "3D Formula 1 Racing Game built with Three.js",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "lint": "npx eslint src/ --ext .js"
+  },
+  "keywords": ["f1", "racing", "3d", "threejs", "game"],
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}
