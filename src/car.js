@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CAR_CONFIG, clamp, lerp, distanceToTrack } from './utils.js';
+import { CAR_CONFIG, clamp, lerp, distanceToTrack, getTrackDirection, getTrackNormal } from './utils.js';
 
 export function createF1Car(color) {
   const car = new THREE.Group();
@@ -122,7 +122,7 @@ export function updateCarPhysics(physics, input, delta, trackPoints, trackWidth)
   p.speed = clamp(p.speed, -CAR_CONFIG.maxSpeed * 0.3, CAR_CONFIG.maxSpeed);
 
   const speedFactor = 1 - Math.min(Math.abs(p.speed) / CAR_CONFIG.maxSpeed, 0.9);
-  const maxSteer = 0.04;
+  const maxSteer = 0.07;
   const steerSpeed = 3;
 
   if (input.left) {
@@ -153,6 +153,25 @@ export function updateCarPhysics(physics, input, delta, trackPoints, trackWidth)
   const vz = Math.cos(p.angle) * p.speed * delta;
   p.position.x += vx;
   p.position.z += vz;
+
+  const newTrackInfo = distanceToTrack(
+    { x: p.position.x, z: p.position.z },
+    trackPoints,
+    trackWidth
+  );
+
+  if (!newTrackInfo.onTrack) {
+    const dir = getTrackDirection(trackPoints, newTrackInfo.index);
+    const normal = getTrackNormal(dir);
+    const dx = p.position.x - trackPoints[newTrackInfo.index].x;
+    const dz = p.position.z - trackPoints[newTrackInfo.index].z;
+    const signedLateral = dx * normal.x + dz * normal.z;
+    const sign = signedLateral > 0 ? 1 : -1;
+    const maxLateral = trackWidth / 2;
+    p.position.x = trackPoints[newTrackInfo.index].x + normal.x * sign * maxLateral;
+    p.position.z = trackPoints[newTrackInfo.index].z + normal.z * sign * maxLateral;
+    p.speed *= 0.5;
+  }
 
   const speedRatio = Math.abs(p.speed) / CAR_CONFIG.maxSpeed;
   p.gear = clamp(Math.floor(speedRatio * 8) + 1, 1, 8);
