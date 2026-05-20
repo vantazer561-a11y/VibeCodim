@@ -98,7 +98,7 @@ export function createTrack(scene) {
 
       const stripeIndex = Math.floor(i / 2);
       const isRed = stripeIndex % 2 === 0;
-      const r = isRed ? 1.0 : 1.0;
+      const r = 1.0;
       const g = isRed ? 0.0 : 1.0;
       const b = isRed ? 0.0 : 1.0;
       curbColors.push(r, g, b);

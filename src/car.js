@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CAR_CONFIG, COLORS, clamp, lerp, getTrackPoints, distanceToTrack, getTrackDirection } from './utils.js';
+import { CAR_CONFIG, clamp, lerp, distanceToTrack } from './utils.js';
 
 export function createF1Car(color) {
   const car = new THREE.Group();
