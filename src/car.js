@@ -143,6 +143,16 @@ export function updateCarPhysics(physics, input, delta, trackPoints, trackWidth)
     trackWidth
   );
 
+  if (trackInfo.onTrack && Math.abs(p.speed) > 1) {
+    const trackDir = getTrackDirection(trackPoints, trackInfo.index);
+    const trackAngle = Math.atan2(trackDir.x, trackDir.z);
+    const angleDiff = trackAngle - p.angle;
+    const wrapped = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+    const lateralRatio = trackInfo.distance / (trackWidth / 2);
+    const assistStrength = lateralRatio > 0.4 ? (lateralRatio - 0.4) * 3.0 : 0;
+    p.angle += wrapped * assistStrength * delta;
+  }
+
   if (trackInfo.onTrack) {
     p.speed *= Math.pow(CAR_CONFIG.friction, delta * 60);
   } else {
@@ -167,10 +177,15 @@ export function updateCarPhysics(physics, input, delta, trackPoints, trackWidth)
     const dz = p.position.z - trackPoints[newTrackInfo.index].z;
     const signedLateral = dx * normal.x + dz * normal.z;
     const sign = signedLateral > 0 ? 1 : -1;
-    const maxLateral = trackWidth / 2;
+    const maxLateral = trackWidth / 2 - 1.0;
     p.position.x = trackPoints[newTrackInfo.index].x + normal.x * sign * maxLateral;
     p.position.z = trackPoints[newTrackInfo.index].z + normal.z * sign * maxLateral;
-    p.speed *= 0.5;
+    const trackAngle = Math.atan2(dir.x, dir.z);
+    const angleDiff = trackAngle - p.angle;
+    const wrappedDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+    const impactAngle = Math.abs(wrappedDiff);
+    p.speed *= 1 - impactAngle * 0.3;
+    p.angle = trackAngle;
   }
 
   const speedRatio = Math.abs(p.speed) / CAR_CONFIG.maxSpeed;
