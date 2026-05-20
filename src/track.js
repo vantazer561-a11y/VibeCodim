@@ -196,32 +196,39 @@ export function createTrack(scene) {
     barriers.push(barrierMesh);
   }
 
-  const startLeft = leftPoints[0];
-  const startRight = rightPoints[0];
+  // Start/finish line
+  const startPoint = trackPoints[0];
   const startDir = getTrackDirection(trackPoints, 0);
-
-  const lineWidth = 1.5;
-  const slPositions = [
-    startLeft.x - startDir.x * lineWidth / 2, startLeft.y + 0.02, startLeft.z - startDir.z * lineWidth / 2,
-    startRight.x - startDir.x * lineWidth / 2, startRight.y + 0.02, startRight.z - startDir.z * lineWidth / 2,
-    startLeft.x + startDir.x * lineWidth / 2, startLeft.y + 0.02, startLeft.z + startDir.z * lineWidth / 2,
-    startRight.x + startDir.x * lineWidth / 2, startRight.y + 0.02, startRight.z + startDir.z * lineWidth / 2,
-  ];
-  const slNormals = [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0];
-  const slIndices = [0, 2, 1, 1, 2, 3];
-
-  const startLineGeometry = new THREE.BufferGeometry();
-  startLineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(slPositions, 3));
-  startLineGeometry.setAttribute('normal', new THREE.Float32BufferAttribute(slNormals, 3));
-  startLineGeometry.setIndex(slIndices);
-
-  const startLine = new THREE.Mesh(startLineGeometry, new THREE.MeshStandardMaterial({
+  const startLineGeo = new THREE.PlaneGeometry(TRACK_CONFIG.width, 1.5);
+  const startLineMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
     roughness: 0.5,
     side: THREE.DoubleSide,
-  }));
+  });
+  const startLine = new THREE.Mesh(startLineGeo, startLineMat);
+  startLine.rotation.x = -Math.PI / 2;
+  startLine.position.set(startPoint.x, startPoint.y + 0.02, startPoint.z);
+  startLine.rotation.y = Math.atan2(startDir.x, startDir.z);
   startLine.receiveShadow = true;
   scene.add(startLine);
+
+  // Center line dashes
+  const dashMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.5,
+    side: THREE.DoubleSide,
+  });
+  for (let i = 0; i < numPoints; i += 4) {
+    const p = trackPoints[i];
+    const dir = getTrackDirection(trackPoints, i);
+    const dashGeo = new THREE.PlaneGeometry(0.5, 2);
+    const dash = new THREE.Mesh(dashGeo, dashMat);
+    dash.rotation.x = -Math.PI / 2;
+    dash.position.set(p.x, p.y + 0.02, p.z);
+    dash.rotation.y = Math.atan2(dir.x, dir.z);
+    dash.receiveShadow = true;
+    scene.add(dash);
+  }
 
   return { trackMesh, barriers, startLine, trackPoints };
 }
@@ -231,7 +238,7 @@ export function createEnvironment(scene) {
   const decorations = [];
 
   scene.background = new THREE.Color(COLORS.sky);
-  scene.fog = new THREE.Fog(COLORS.sky, 300, 800);
+  scene.fog = new THREE.Fog(COLORS.sky, 100, 800);
 
   const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
   const groundMaterial = new THREE.MeshStandardMaterial({
